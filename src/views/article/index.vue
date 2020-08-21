@@ -26,13 +26,15 @@
             <el-option v-for="(channel,index) in channels" :key="index" :label="channel.name" :value="channel.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="活动时间">
+        <el-form-item label="时间">
            <el-date-picker
-             v-model="form.data1"
+             v-model="rangeDate"
              type="datetimerange"
              start-placeholder="开始日期"
              end-placeholder="结束日期"
-             :default-time="['12:00:00']">
+             :default-time="['12:00:00']"
+             format="yyyy-MM-dd"
+             value-format="yyyy-MM-dd">
            </el-date-picker>
         </el-form-item>
         <el-form-item>
@@ -53,8 +55,11 @@
         prop=""
         label="封面">
         <template slot-scope="scope">
-          <img v-if="scope.row.cover.images[0]" class="article-cover" :src="scope.row.cover.images[0]" alt="">
-          <img v-else src="./error.gif" class="article-cover" alt="">
+          <el-image
+            style="width: 100px; height: 100px"
+            :src="scope.row.cover.images[0]"
+            fit="cover">
+          </el-image>
         </template>
       </el-table-column>
       <el-table-column
@@ -74,7 +79,7 @@
       </el-table-column>
       <el-table-column
         label="操作">
-        <template>
+        <template slot-scope="scope">
           <el-button
             size="mini"
             circle
@@ -86,6 +91,7 @@
             circle
             icon="el-icon-delete"
             type="danger"
+            @click="onDeleteArticle(scope.row.id)"
             ></el-button>
         </template>
       </el-table-column>
@@ -96,6 +102,7 @@
       background
       @current-change='onCurrentChange'
       :page-size="pageSize"
+      :current-page.sync="page"
       :total="totalCount">
     </el-pagination>
     </el-card>
@@ -103,7 +110,7 @@
 </template>
 
 <script>
-import { getArticle, getArticleChannels } from '@/api/article'
+import { getArticle, getArticleChannels, deleteArticle } from '@/api/article'
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -132,7 +139,9 @@ export default {
       pageSize: 10,
       status: null,
       channels: [],
-      channelId: null
+      channelId: null,
+      rangeDate: null,
+      page: 1
     }
   },
   computed: {},
@@ -148,7 +157,9 @@ export default {
         page,
         per_page: this.pageSize,
         status: this.status,
-        channel_id: this.channelId
+        channel_id: this.channelId,
+        begin_pubdate: this.rangeDate ? this.rangeDate[0] : null,
+        end_pubdate: this.rangeDate ? this.rangeDate[1] : null
       }).then(res => {
         const { results, total_count: totalCount } = res.data.data
         this.articles = results
@@ -160,8 +171,27 @@ export default {
     },
     loadChannels () {
       getArticleChannels().then(res => {
-        console.log(res)
         this.channels = res.data.data.channels
+      })
+    },
+    onDeleteArticle (articleId) {
+      this.$confirm('确定删除?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deleteArticle(articleId.toString()).then(res => {
+          this.loadArticle(this.page)
+        })
+        this.$message({
+          type: 'success',
+          message: '已删除'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
       })
     }
   }
