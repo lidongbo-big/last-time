@@ -56,10 +56,17 @@
       <el-table-column
         prop="title"
         label="标题">
-      </el-table-column>
+      </el-table-column>4
       <el-table-column
         prop="status"
         label="状态">
+        <template slot-scope="scope">
+        <el-tag v-if="scope.row.status === 0">草稿</el-tag>
+        <el-tag type="success" v-else-if="scope.row.status === 1">待审核</el-tag>
+        <el-tag type="info" v-else-if="scope.row.status === 2">待审核</el-tag>
+        <el-tag type="warning" v-else-if="scope.row.status === 3">审核通过</el-tag>
+        <el-tag type="danger" v-else-if="scope.row.status === 4">审核失败</el-tag>
+        </template>
       </el-table-column>
       <el-table-column
         prop="pubdate"
