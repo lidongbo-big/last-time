@@ -52,6 +52,10 @@
       <el-table-column
         prop=""
         label="封面">
+        <template slot-scope="scope">
+          <img v-if="scope.row.cover.images[0]" class="article-cover" :src="scope.row.cover.images[0]" alt="">
+          <img v-else src="./error.gif" class="article-cover" alt="">
+        </template>
       </el-table-column>
       <el-table-column
         prop="title"
@@ -61,11 +65,7 @@
         prop="status"
         label="状态">
         <template slot-scope="scope">
-        <el-tag v-if="scope.row.status === 0">草稿</el-tag>
-        <el-tag type="success" v-else-if="scope.row.status === 1">待审核</el-tag>
-        <el-tag type="info" v-else-if="scope.row.status === 2">待审核</el-tag>
-        <el-tag type="warning" v-else-if="scope.row.status === 3">审核通过</el-tag>
-        <el-tag type="danger" v-else-if="scope.row.status === 4">审核失败</el-tag>
+        <el-tag :type = "articleList[scope.row.status].type">{{ articleList[scope.row.status].text }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -118,7 +118,14 @@ export default {
         resource: '',
         desc: ''
       },
-      articles: []
+      articles: [],
+      articleList: [
+        { status: 0, text: '草稿', type: '' },
+        { status: 1, text: '待审核', type: 'info' },
+        { status: 2, text: '审核通过', type: 'success' },
+        { status: 3, text: '审核失败', type: 'warning' },
+        { status: 4, text: '已删除', type: 'danger' }
+      ]
     }
   },
   computed: {},
@@ -141,4 +148,9 @@ export default {
 }
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+.article-cover {
+  width: 100px;
+  background-size: cover;
+}
+</style>
