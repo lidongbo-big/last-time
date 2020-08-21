@@ -94,7 +94,9 @@
     <el-pagination
       layout="prev, pager, next"
       background
-      :total="1000">
+      @current-change='onCurrentChange'
+      :page-size="pageSize"
+      :total="totalCount">
     </el-pagination>
     </el-card>
   </div>
@@ -125,7 +127,9 @@ export default {
         { status: 2, text: '审核通过', type: 'success' },
         { status: 3, text: '审核失败', type: 'warning' },
         { status: 4, text: '已删除', type: 'danger' }
-      ]
+      ],
+      totalCount: 0,
+      pageSize: 10
     }
   },
   computed: {},
@@ -138,11 +142,18 @@ export default {
     onSubmit () {
       console.log('submit!')
     },
-    loadArticle () {
-      getArticle().then(res => {
-        console.log(res)
-        this.articles = res.data.data.results
+    loadArticle (page = 1) {
+      getArticle({
+        page,
+        per_page: this.pageSize
+      }).then(res => {
+        const { results, total_count: totalCount } = res.data.data
+        this.articles = results
+        this.totalCount = totalCount
       })
+    },
+    onCurrentChange (page) {
+      this.loadArticle(page)
     }
   }
 }
@@ -151,6 +162,7 @@ export default {
 <style scoped lang="less">
 .article-cover {
   width: 100px;
+  height: 100px;
   background-size: cover;
 }
 </style>
