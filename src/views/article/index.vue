@@ -11,19 +11,19 @@
       <!-- 数据筛选表单 -->
       <el-form ref="form" :model="form" label-width="80px">
         <el-form-item label="状态">
-          <el-radio-group v-model="form.resource">
-            <el-radio label="全部"></el-radio>
-            <el-radio label="草稿"></el-radio>
-            <el-radio label="待审核"></el-radio>
-            <el-radio label="审核通过"></el-radio>
-            <el-radio label="审核失败"></el-radio>
-            <el-radio label="已删除"></el-radio>
+          <el-radio-group v-model="status">
+            <el-radio :label="null">全部</el-radio>
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">待审核</el-radio>
+            <el-radio :label="2">审核通过</el-radio>
+            <el-radio :label="3">审核失败</el-radio>
+            <el-radio :label="4">已删除</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="活动区域">
-          <el-select v-model="form.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="频道">
+          <el-select v-model="channelId" placeholder="请选择频道">
+            <el-option label="全部" :value="null"></el-option>
+            <el-option v-for="(channel,index) in channels" :key="index" :label="channel.name" :value="channel.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="活动时间">
@@ -36,14 +36,14 @@
            </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">筛选</el-button>
+          <el-button type="primary" @click="loadArticle(1)">筛选</el-button>
         </el-form-item>
       </el-form>
     </el-card>
     <el-card class="box-card">
     <!-- 数据表单 -->
     <div slot="header" class="clearfix">
-        根据筛选条件共查询到 46147 条结果
+        根据筛选条件共查询到 {{ totalCount }} 条结果
     </div>
     <el-table
       :data="articles"
@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/article'
+import { getArticle, getArticleChannels } from '@/api/article'
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -129,23 +129,26 @@ export default {
         { status: 4, text: '已删除', type: 'danger' }
       ],
       totalCount: 0,
-      pageSize: 10
+      pageSize: 10,
+      status: null,
+      channels: [],
+      channelId: null
     }
   },
   computed: {},
   watch: {},
   created () {
     this.loadArticle()
+    this.loadChannels()
   },
   mounted () {},
   methods: {
-    onSubmit () {
-      console.log('submit!')
-    },
     loadArticle (page = 1) {
       getArticle({
         page,
-        per_page: this.pageSize
+        per_page: this.pageSize,
+        status: this.status,
+        channel_id: this.channelId
       }).then(res => {
         const { results, total_count: totalCount } = res.data.data
         this.articles = results
@@ -154,6 +157,12 @@ export default {
     },
     onCurrentChange (page) {
       this.loadArticle(page)
+    },
+    loadChannels () {
+      getArticleChannels().then(res => {
+        console.log(res)
+        this.channels = res.data.data.channels
+      })
     }
   }
 }
