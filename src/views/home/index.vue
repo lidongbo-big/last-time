@@ -1,10 +1,10 @@
 <template>
-  <div class="hemo-container"></div>
+  <div class="hemo-container">首页</div>
 </template>
 
 <script>
 export default {
-  name: 'Home',
+  name: 'HomeIndex',
   components: {},
   props: {},
   data () {
