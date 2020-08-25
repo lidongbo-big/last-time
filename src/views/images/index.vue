@@ -15,19 +15,24 @@
         <el-button @click="dialogUpdateVisible=true" type='success'>上传素材</el-button>
       </div>
       <el-row :gutter="20">
-        <el-col v-for="(image, index) in images" :key="index" :xs='12' :sm='6' :md='6' :lg='4'>
+        <el-col class="image-item"  v-for="(image, index) in images" :key="index" :xs='12' :sm='6' :md='6' :lg='4'>
           <el-image
-          style="width: 100px; height: 100px"
+          style="height: 100px"
           :src="image.url"
           fit="cover">
           </el-image>
+          <div class="image-action">
+            <i @click="onCollect(image)" :class="{'el-icon-star-off': image.is_collected, 'el-icon-star-on': !image.is_collected}"></i>
+            <el-button size="small" type="danger" icon="el-icon-delete-solid" circle @click="onDelete(image)"></el-button>
+          </div>
         </el-col>
       </el-row>
       <el-pagination
         background
         layout="prev, pager, next"
         @current-change='onCurrentChange'
-        :total="1000">
+        :current-page.sync="page"
+        :total="totalCount">
       </el-pagination>
     </el-card>
     <el-dialog :append-to-body='true' title="上传素材" :visible.sync="dialogUpdateVisible">
@@ -49,7 +54,7 @@
 </template>
 
 <script>
-import { getImage } from '@/api/image'
+import { getImage, collectImage, deleteImage } from '@/api/image'
 export default {
   name: 'imagesIndex',
   components: {},
@@ -57,13 +62,14 @@ export default {
   data () {
     const user = JSON.parse(window.localStorage.getItem('user'))
     return {
-      collect: 'false',
+      collect: false,
       images: [],
       dialogUpdateVisible: false,
       uploadHeaders: {
         Authorization: `Bearer ${user.token}`
       },
-      flag: false
+      totalCount: 0,
+      pageSize: 5
     }
   },
   computed: {},
@@ -74,24 +80,42 @@ export default {
   mounted () {},
   methods: {
     loadImages (page) {
+      this.page = page
       getImage({
         page,
-        per_page: 10,
-        flag: this.flag
+        per_page: this.pageSize,
+        collect: this.collect
       }).then(res => {
+        const results = res.data.data.results
+        results.forEach(img => {
+          // img 对象本来没有 loading 数据
+          // 我们这里收到的往里面添加该数据是用来控制每个收藏按钮的 loading 状态
+          img.loading = false
+        })
         this.images = res.data.data.results
+        this.totalCount = res.data.data.total_count
       })
     },
     onCollcetChange (value) {
       this.loadImages(value)
     },
     onUploadSuccess () {
-      this.loadImages(1, false)
+      this.loadImages(this.page)
       this.dialogUpdateVisible = false
     },
     onCurrentChange (page) {
-      console.log(page)
       this.loadImages(page)
+    },
+    onCollect (img) {
+      collectImage(img.id, !img.is_collected).then(res => {
+        img.is_collected = !img.is_collected
+      })
+    },
+    onDelete (img) {
+      console.log(img)
+      deleteImage(img.id).then(res => {
+        this.loadImages(this.page)
+      })
     }
   }
 }
@@ -102,5 +126,22 @@ export default {
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
+}
+.image-item {
+  position: relative;
+}
+
+.image-action {
+  font-size: 25px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  color: #fff;
+  height: 40px;
+  background-color: rgba(204, 204, 204, .5);
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  right: 5px;
 }
 </style>
