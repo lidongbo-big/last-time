@@ -8,7 +8,7 @@
         </el-breadcrumb>
       </div>
       <div class="action-head">
-        <el-radio-group @change="onCollcetChange" v-model="collect">
+        <el-radio-group @change="loadImages(1)" v-model="collect">
           <el-radio-button :label="false">全部</el-radio-button>
           <el-radio-button :label="true">收藏</el-radio-button>
         </el-radio-group>
@@ -23,6 +23,12 @@
           </el-image>
         </el-col>
       </el-row>
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        @current-change='onCurrentChange'
+        :total="1000">
+      </el-pagination>
     </el-card>
     <el-dialog :append-to-body='true' title="上传素材" :visible.sync="dialogUpdateVisible">
       <el-upload
@@ -56,28 +62,36 @@ export default {
       dialogUpdateVisible: false,
       uploadHeaders: {
         Authorization: `Bearer ${user.token}`
-      }
+      },
+      flag: false
     }
   },
   computed: {},
   watch: {},
   created () {
-    this.loadImages()
+    this.loadImages(1, false)
   },
   mounted () {},
   methods: {
-    loadImages (flag = false) {
-      getImage().then(res => {
+    loadImages (page) {
+      getImage({
+        page,
+        per_page: 10,
+        flag: this.flag
+      }).then(res => {
         this.images = res.data.data.results
       })
     },
     onCollcetChange (value) {
-      console.log(value)
       this.loadImages(value)
     },
     onUploadSuccess () {
-      this.loadImages(false)
+      this.loadImages(1, false)
       this.dialogUpdateVisible = false
+    },
+    onCurrentChange (page) {
+      console.log(page)
+      this.loadImages(page)
     }
   }
 }
