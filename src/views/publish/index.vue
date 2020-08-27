@@ -17,11 +17,16 @@
        </el-form-item>
        <el-form-item label="封面:">
            <el-radio-group v-model="article.cover.type">
-           <el-radio :label="1">单图</el-radio>
-           <el-radio :label="3">三图</el-radio>
-           <el-radio :label="0">无图</el-radio>
-           <el-radio :label="-1">自动</el-radio>
+            <el-radio :label="1">单图</el-radio>
+            <el-radio :label="3">三图</el-radio>
+            <el-radio :label="0">无图</el-radio>
+            <el-radio :label="-1">自动</el-radio>
            </el-radio-group>
+           <template v-if="article.cover.type > 0">
+             <upload-cover v-model="article.cover.images[index]"  v-for="(cover, index) in article.cover.type" :key="cover">
+             <!-- <upload-cover @update-cover='onUpdateCover(index, $event)'  v-for="(cover, index) in article.cover.type" :key="cover" :cover-image='article.cover.images[index]'> -->
+             </upload-cover>
+           </template>
        </el-form-item>
         <el-form-item label="频道:" prop="channel_id">
            <el-select v-model="article.channel_id" placeholder="请选择">
@@ -38,6 +43,7 @@
 </template>
 
 <script>
+import UploadCover from './components/upload-cover'
 import { getArticleChannels, addArticle, getAssignArticle, updateArticle } from '@/api/article'
 import {
   ElementTiptap,
@@ -59,7 +65,8 @@ import { uploadImage } from '@/api/image'
 export default {
   name: 'PublishIndex',
   components: {
-    'el-tiptap': ElementTiptap
+    'el-tiptap': ElementTiptap,
+    UploadCover
   },
   props: {},
   data () {
@@ -166,6 +173,9 @@ export default {
       getAssignArticle(this.$route.query.id).then(res => {
         this.article = res.data.data
       })
+    },
+    onUpdateCover (index, url) {
+      this.article.cover.images[index] = url
     }
   }
 }
