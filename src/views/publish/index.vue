@@ -57,7 +57,7 @@ import {
 import 'element-tiptap/lib/index.css'
 import { uploadImage } from '@/api/image'
 export default {
-  name: 'publishIndex',
+  name: 'PublishIndex',
   components: {
     'el-tiptap': ElementTiptap
   },

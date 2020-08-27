@@ -56,7 +56,7 @@
 <script>
 import { getImage, collectImage, deleteImage } from '@/api/image'
 export default {
-  name: 'imagesIndex',
+  name: 'ImagesIndex',
   components: {},
   props: {},
   data () {
