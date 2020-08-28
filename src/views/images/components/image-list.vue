@@ -7,13 +7,14 @@
         </el-radio-group>
         <el-button v-if="isShowAdd" @click="dialogUpdateVisible=true" type='success'>上传素材</el-button>
       </div>
-      <el-row :gutter="20">
-        <el-col class="image-item"  v-for="(image, index) in images" :key="index" :xs='12' :sm='6' :md='6' :lg='4'>
+      <el-row :gutter="10">
+        <el-col @click.native="selected = index" class="image-item"  v-for="(image, index) in images" :key="index" :xs='12' :sm='6' :md='6' :lg='4'>
           <el-image
           style="height: 100px"
           :src="image.url"
           fit="cover">
           </el-image>
+          <div v-if=" isShowSelected && selected === index" class="selected"></div>
           <div class="image-action" v-if="isShowAction">
             <i @click="onCollect(image)" :class="{'el-icon-star-off': image.is_collected, 'el-icon-star-on': !image.is_collected}"></i>
             <el-button size="small" type="danger" icon="el-icon-delete-solid" circle @click="onDelete(image)"></el-button>
@@ -59,6 +60,10 @@ export default {
     isShowAction: {
       type: Boolean,
       default: true
+    },
+    isShowSelected: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -71,7 +76,8 @@ export default {
         Authorization: `Bearer ${user.token}`
       },
       totalCount: 0,
-      pageSize: 5
+      pageSize: 5,
+      selected: null
     }
   },
   computed: {},
@@ -144,5 +150,17 @@ export default {
   bottom: 4px;
   left: 5px;
   right: 5px;
+}
+.selected {
+  background: url(./selected.png) no-repeat;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

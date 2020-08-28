@@ -1,5 +1,6 @@
 import axios from 'axios'
 import JSONbig from 'json-bigint'
+import router from '@/router'
 
 const request = axios.create({
   baseURL: 'http://ttapi.research.itcast.cn/',
@@ -25,5 +26,16 @@ request.interceptors.request.use(function (config) {
   // Do something with request error
   return Promise.reject(error)
 })
-
+// 响应拦截器
+request.interceptors.response.use(function (response) {
+  // 对响应数据做点什么
+  return response
+}, function (error) {
+  // 对响应错误做点什么
+  if (error.response && error.response.status === 401) {
+    router.push('/login')
+    window.localStorage.removeItem('user')
+  }
+  return Promise.reject(error)
+})
 export default request

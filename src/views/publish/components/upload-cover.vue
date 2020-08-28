@@ -14,7 +14,9 @@
       width="30%"
       >
         <el-tabs v-model="activeName" type="card">
-          <el-tab-pane label="素材库" name="first"> <image-list :is-show-add='false' :is-show-action='false' /> </el-tab-pane>
+          <el-tab-pane label="素材库" name="first">
+             <image-list :is-show-add='false' :is-show-action='false' :is-show-selected='true' ref="image-list" />
+          </el-tab-pane>
           <el-tab-pane label="上传图片" name="second">上传图片
             <input type="file" ref="file" @change="onFileChange">
             <img width="100" height="100" ref="preview-image">
@@ -58,19 +60,30 @@ export default {
     //   this.$refs.file.value = ''
     },
     onCoverConfirm () {
-    //   console.log(this.$refs)
-      const file = this.$refs.file.files[0]
-      if (!file) {
-        this.$message('请选择文件')
-        return
-      }
-      const fd = new FormData()
-      fd.append('image', file)
-      uploadImage(fd).then(res => {
+      if (this.activeName === 'second') {
+        //   console.log(this.$refs)
+        const file = this.$refs.file.files[0]
+        if (!file) {
+          this.$message('请选择文件')
+          return
+        }
+        const fd = new FormData()
+        fd.append('image', file)
+        uploadImage(fd).then(res => {
+          this.dialogVisible = false
+          this.$refs['cover-image'].src = res.data.data.url
+          this.$emit('input', res.data.data.url)
+        })
+      } else if (this.activeName === 'first') {
+        const imageList = this.$refs['image-list']
+        const selected = imageList.selected
+        if (selected === null) {
+          this.$message('请选择图片')
+          return
+        }
         this.dialogVisible = false
-        this.$refs['cover-image'].src = res.data.data.url
-        this.$emit('input', res.data.data.url)
-      })
+        this.$emit('input', imageList.images[selected].url)
+      }
     }
   }
 }
