@@ -114,7 +114,7 @@ export default {
           {
             validator (rule, value, callback) {
               if (value === '<p></p>') {
-                callback(new Error('请输入'))
+                callback(new Error('请输入shaye'))
               } else {
                 callback()
               }
