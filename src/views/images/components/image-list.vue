@@ -120,7 +120,6 @@ export default {
       })
     },
     onDelete (img) {
-      console.log(img)
       deleteImage(img.id).then(res => {
         this.loadImages(this.page)
       })

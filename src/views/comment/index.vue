@@ -113,7 +113,6 @@ export default {
     },
     onStatusChange (article) {
       updateCommentStatus(article.id.toString(), article.comment_status).then(res => {
-        console.log(res)
       })
     }
   }

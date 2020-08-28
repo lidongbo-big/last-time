@@ -146,7 +146,6 @@ export default {
         const articleID = this.$route.query.id
         if (articleID) {
           updateArticle(articleID, this.article, draft).then(res => {
-            console.log(res)
             this.$message({
               message: '修该成功',
               type: 'success'
